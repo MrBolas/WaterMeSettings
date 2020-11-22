@@ -1,0 +1,19 @@
+{
+  "name": "@mrballs/watermesettings",
+  "version": "1.0.0",
+  "description": "Settings package for WaterMe Project",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MrBolas/WaterMeSettings.git"
+  },
+  "author": "JBS",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MrBolas/WaterMeSettings/issues"
+  },
+  "homepage": "https://github.com/MrBolas/WaterMeSettings#readme"
+}
