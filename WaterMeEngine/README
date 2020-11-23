@@ -1,0 +1,15 @@
+WaterMe Engine
+
+-> Objective:
+Engine class should has the objective of handling watering data and to be able to discern the optimum time to water, or not.
+
+Parameters are (depending on availability):
+-> Temperature
+-> Humidity
+-> Soil Moisture Sensor
+-> Sun exposure index
+-> External weather (Rain)
+
+Engine Arguments:
+-> Sensor Data (Temp, DHT and SMS)
+-> Weather forecast (external API)

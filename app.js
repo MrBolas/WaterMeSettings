@@ -1,4 +1,4 @@
 const MicroController = require("./models/microController");
+const WaterMeEngine = require("./WaterMeEngine/WaterMeEngine");
 
-
-module.exports = {MicroController};
+module.exports = {MicroController, WaterMeEngine};
