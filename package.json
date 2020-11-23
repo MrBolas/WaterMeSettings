@@ -1,6 +1,6 @@
 {
   "name": "@mrballs/watermesettings",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "description": "Settings package for WaterMe Project",
   "main": "app.js",
   "scripts": {
@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/MrBolas/WaterMeSettings/issues"
   },
-  "homepage": "https://github.com/MrBolas/WaterMeSettings#readme"
+  "homepage": "https://github.com/MrBolas/WaterMeSettings#readme",
+  "dependencies": {
+    "mongoose": "^5.10.15"
+  }
 }

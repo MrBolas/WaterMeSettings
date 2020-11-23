@@ -1,4 +1,4 @@
-import { MicroController } from "./models/microController";
+const MicroController = require("./models/microController");
 
 
 module.exports = {MicroController};
