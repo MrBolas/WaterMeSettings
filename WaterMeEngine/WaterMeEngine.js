@@ -1,7 +1,11 @@
+const weather  = require('openweather-apis');
+const openweather_api_key = process.env.OPENWEATHER_API;
+
 class WaterMeEngine {
 
     #sensors;
-    #location;
+    #location = undefined;
+    #api_data;
 
     /**
      * WaterMeEngine contructor
@@ -11,7 +15,40 @@ class WaterMeEngine {
     constructor(sensors, location)
     {
         this.#sensors = sensors;
-        this.#location = location;
+        if(location != '-'){
+            this.#location = location;
+        }
+
+        //setup weather API
+        weather.setLang('en');
+        if (this.#location != undefined) {
+            weather.setCity(this.#location);
+        }
+        weather.setUnits('metric');
+        weather.setAPPID(openweather_api_key);
+        
+        weather.getAllWeather(api_info => {
+            let api_data = {
+                weather: api_info.weather,
+                wind: api_info.wind,
+                clouds: api_info.clouds
+            };
+
+            this.#api_data = api_data;
+        })
+        .catch(err => {
+            console.log(err);
+        })
+    }
+
+    /**
+     * externalWeatherAPIAvailable verifies the external weather API is available
+     */
+    externalWeatherAPIAvailable() {
+        if (this.#api_data != undefined) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -57,7 +94,7 @@ class WaterMeEngine {
     evaluateHumidity() {
         for (const sensor of this.#sensors) {
             if (sensor.type.includes('hum')) {
-                let latest_reading = sensor.readings[sensor.readings.length];
+                let latest_reading = sensor.readings[sensor.readings.length-1];
                 let watering_thresholds = sensor.watering_threshold;
                 if (latest_reading.value > watering_thresholds.min
                     && latest_reading.value < watering_thresholds.max) {
@@ -75,7 +112,7 @@ class WaterMeEngine {
     evaluateTemperature() {
         for (const sensor of this.#sensors) {
             if (sensor.type.includes('temp')) {
-                let latest_reading = sensor.readings[sensor.readings.length];
+                let latest_reading = sensor.readings[sensor.readings.length-1];
                 let watering_thresholds = sensor.watering_threshold;
                 if (latest_reading.value > watering_thresholds.min
                     && latest_reading.value < watering_thresholds.max) {
@@ -93,13 +130,35 @@ class WaterMeEngine {
     evaluateSoilMoisture() {
         for (const sensor of this.#sensors) {
             if (sensor.type.includes('SMS')) {
-                let latest_reading = sensor.readings[sensor.readings.length];
+                let latest_reading = sensor.readings[sensor.readings.length-1];
                 let watering_thresholds = sensor.watering_threshold;
-                if (latest_reading.value > watering_thresholds.min
-                    && latest_reading.value < watering_thresholds.max) {
+                // not enough water
+                if (latest_reading.value < watering_thresholds.min) {
                     return true;
                 }
             }
+        }
+        return false;
+    }
+
+    /**
+     * evaluateWind evaluates wind velocity
+     */
+    evaluateWind(){
+        // if wind speed is more than 25km/h
+        if (this.#api_data.wind.speed > 25) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * evaluateRain evaluates if it is rainning
+     */
+    evaluateRain() {
+        // evaluates if api weather is rain
+        if (this.#api_data.weather.main == 'Rain') {
+            return true;
         }
         return false;
     }
@@ -109,9 +168,10 @@ class WaterMeEngine {
      * @returns true for watering
      */
     evaluateWaterMe() {
-        if (this.temperatureSensorAvailable() ? this.evaluateTemperature() : true
-        && this.humiditySensorAvailable() ? this.evaluateHumidity() : true
-        && this.soilMoistureSensorAvailable() ? this.evaluateSoilMoisture() : true) 
+        if (this.temperatureSensorAvailable()   ? this.evaluateTemperature()                    : true
+        && this.humiditySensorAvailable()       ? this.evaluateHumidity()                       : true
+        && this.soilMoistureSensorAvailable()   ? this.evaluateSoilMoisture()                   : true
+        && this.externalWeatherAPIAvailable()   ? !this.evaluateRain && !this.evaluateWind()    : true) 
         {
          return true;   
         }
