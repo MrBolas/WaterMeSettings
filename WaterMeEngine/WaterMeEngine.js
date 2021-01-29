@@ -4,14 +4,6 @@ const openweather_api_key = process.env.OPENWEATHER_API;
 
 class WaterMeEngine {
 
-    #valid_SMS_reading_threshold = 0.1;
-
-    #engineVersion = undefined;
-    #dependencies;
-    #sensors;
-    #location = undefined;
-    #api_data;
-
     /**
      * WaterMeEngine contructor
      * @param {*} sensors sensors data
@@ -19,14 +11,19 @@ class WaterMeEngine {
      */
     constructor(sensors, location)
     {
-        this.#sensors = sensors;
-      
+        this.sensors = sensors;
+        this.valid_SMS_reading_threshold = 0.1;
+        this.engineVersion = undefined;
+        this.location = undefined;
+        this.api_data;
+        this.dependencies;
+        
         //setup weather API
         if(location != '-'){
-            this.#location = location;
+            this.location = location;
 
             weather.setLang('en');
-            weather.setCity(this.#location);
+            weather.setCity(this.location);
             weather.setUnits('metric');
             weather.setAPPID(openweather_api_key);
             weather.getAllWeather(api_info => {
@@ -42,7 +39,7 @@ class WaterMeEngine {
                 console.log(err);
             })
         }else{
-            this.#location = undefined;
+            this.location = undefined;
         }
     }
 
@@ -50,7 +47,7 @@ class WaterMeEngine {
      * externalWeatherAPIAvailable verifies the external weather API is available
      */
     externalWeatherAPIAvailable() {
-        if (this.#api_data != undefined) {
+        if (this.api_data != undefined) {
             return true;
         }
         return false;
@@ -60,9 +57,9 @@ class WaterMeEngine {
      * soilMoistureSensorAvailable returns a boolean for the existence of soil moisture sensor data
      */
     soilMoistureSensorAvailable() {
-        for (const sensor of this.#sensors) {
+        for (const sensor of this.sensors) {
             if (sensor.type.includes('SMS') 
-            && sensor.readings[sensor.readings.length-1] > this.#valid_SMS_reading_threshold) {
+            && sensor.readings[sensor.readings.length-1] > this.valid_SMS_reading_threshold) {
                 return true;
             }
         }
@@ -73,7 +70,7 @@ class WaterMeEngine {
      * temperatureSensorAvailable returns a boolean for the existence of temperature sensor data
      */
     temperatureSensorAvailable() {
-        for (const sensor of this.#sensors) {
+        for (const sensor of this.sensors) {
             if (sensor.type.includes('temp')) {
                 return true;
             }
@@ -85,7 +82,7 @@ class WaterMeEngine {
      * humiditySensorAvailable returns a boolean for the existence of humidity sensor data
      */
     humiditySensorAvailable() {
-        for (const sensor of this.#sensors) {
+        for (const sensor of this.sensors) {
             if (sensor.type.includes('hum')) {
                 return true;
             }
@@ -98,7 +95,7 @@ class WaterMeEngine {
      * @returns true for positive evaluation
      */
     evaluateHumidity() {
-        for (const sensor of this.#sensors) {
+        for (const sensor of this.sensors) {
             if (sensor.type.includes('hum')) {
                 let latest_reading = sensor.readings[sensor.readings.length-1];
                 let watering_thresholds = sensor.watering_threshold;
@@ -134,7 +131,7 @@ class WaterMeEngine {
      * @returns true for positive evaluation
      */
     evaluateSoilMoisture() {
-        for (const sensor of this.#sensors) {
+        for (const sensor of this.sensors) {
             if (sensor.type.includes('SMS')) {
                 let latest_reading = sensor.readings[sensor.readings.length-1];
                 let watering_thresholds = sensor.watering_threshold;
@@ -152,7 +149,7 @@ class WaterMeEngine {
      */
     evaluateWind(){
         // if wind speed is more than 25km/h
-        if (this.#api_data.wind.speed > 25) {
+        if (this.api_data.wind.speed > 25) {
             return true;
         }
         return false;
@@ -163,7 +160,7 @@ class WaterMeEngine {
      */
     evaluateRain() {
         // evaluates if api weather is rain
-        if (this.#api_data.weather.main == 'Rain') {
+        if (this.api_data.weather.main == 'Rain') {
             return true;
         }
         return false;
