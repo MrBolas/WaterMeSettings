@@ -4,7 +4,7 @@ const openweather_api_key = process.env.OPENWEATHER_API;
 
 class WaterMeEngine {
 
-    valid_SMS_reading_threshold = 0.1;
+    #valid_SMS_reading_threshold = 0.1;
 
     #engineVersion = undefined;
     #dependencies;
@@ -62,7 +62,7 @@ class WaterMeEngine {
     soilMoistureSensorAvailable() {
         for (const sensor of this.#sensors) {
             if (sensor.type.includes('SMS') 
-            && sensor.readings[sensor.readings.length-1] > this.valid_SMS_reading_threshold) {
+            && sensor.readings[sensor.readings.length-1] > this.#valid_SMS_reading_threshold) {
                 return true;
             }
         }
