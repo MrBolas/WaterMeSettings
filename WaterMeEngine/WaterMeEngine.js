@@ -33,7 +33,7 @@ class WaterMeEngine {
                     clouds: api_info.clouds
                 };
     
-                this.#api_data = api_data;
+                this.api_data = api_data;
             })
             .catch(err => {
                 console.log(err);
@@ -113,7 +113,7 @@ class WaterMeEngine {
      * @returns true for positive evaluation
      */
     evaluateTemperature() {
-        for (const sensor of this.#sensors) {
+        for (const sensor of this.sensors) {
             if (sensor.type.includes('temp')) {
                 let latest_reading = sensor.readings[sensor.readings.length-1];
                 let watering_thresholds = sensor.watering_threshold;
