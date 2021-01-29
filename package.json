@@ -1,6 +1,6 @@
 {
   "name": "@mrballs/watermesettings",
-  "version": "1.0.17",
+  "version": "1.0.18",
   "description": "Settings package for WaterMe Project",
   "main": "app.js",
   "scripts": {
