@@ -38,8 +38,6 @@ class WaterMeEngine {
             .catch(err => {
                 console.log(err);
             })
-        }else{
-            this.location = undefined;
         }
     }
 
