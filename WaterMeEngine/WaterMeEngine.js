@@ -1,8 +1,13 @@
 const weather  = require('openweather-apis');
+const package_settings = require('../package.json')
 const openweather_api_key = process.env.OPENWEATHER_API;
 
 class WaterMeEngine {
 
+    valid_SMS_reading_threshold = 0.1;
+
+    #engineVersion = undefined;
+    #dependencies;
     #sensors;
     #location = undefined;
     #api_data;
@@ -15,30 +20,30 @@ class WaterMeEngine {
     constructor(sensors, location)
     {
         this.#sensors = sensors;
+      
+        //setup weather API
         if(location != '-'){
             this.#location = location;
-        }
 
-        //setup weather API
-        weather.setLang('en');
-        if (this.#location != undefined) {
+            weather.setLang('en');
             weather.setCity(this.#location);
+            weather.setUnits('metric');
+            weather.setAPPID(openweather_api_key);
+            weather.getAllWeather(api_info => {
+                let api_data = {
+                    weather: api_info.weather,
+                    wind: api_info.wind,
+                    clouds: api_info.clouds
+                };
+    
+                this.#api_data = api_data;
+            })
+            .catch(err => {
+                console.log(err);
+            })
+        }else{
+            this.#location = undefined;
         }
-        weather.setUnits('metric');
-        weather.setAPPID(openweather_api_key);
-        
-        weather.getAllWeather(api_info => {
-            let api_data = {
-                weather: api_info.weather,
-                wind: api_info.wind,
-                clouds: api_info.clouds
-            };
-
-            this.#api_data = api_data;
-        })
-        .catch(err => {
-            console.log(err);
-        })
     }
 
     /**
@@ -56,7 +61,8 @@ class WaterMeEngine {
      */
     soilMoistureSensorAvailable() {
         for (const sensor of this.#sensors) {
-            if (sensor.type.includes('SMS')) {
+            if (sensor.type.includes('SMS') 
+            && sensor.readings[sensor.readings.length-1] > this.valid_SMS_reading_threshold) {
                 return true;
             }
         }
@@ -171,11 +177,20 @@ class WaterMeEngine {
         if (this.temperatureSensorAvailable()   ? this.evaluateTemperature()                    : true
         && this.humiditySensorAvailable()       ? this.evaluateHumidity()                       : true
         && this.soilMoistureSensorAvailable()   ? this.evaluateSoilMoisture()                   : true
-        && this.externalWeatherAPIAvailable()   ? !this.evaluateRain && !this.evaluateWind()    : true) 
+        && this.externalWeatherAPIAvailable()   ? !this.evaluateRain && !this.evaluateWind()    : true
+        ) 
         {
          return true;   
         }
         return false;
+    }
+
+    /**
+     * getVersion method for version of the WaterMeEngine
+     * @returns WaterMeEngine version
+     */
+    getVersion(){
+        return package_settings.version;
     }
 }
 

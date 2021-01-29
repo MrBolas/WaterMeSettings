@@ -7,6 +7,7 @@ const userSchema = mongoose.Schema({
         first_name: {type: String},
         last_name: {type: String}
     },
+    notifications: {type: Boolean, default: true},
     microcontrollers: [{type: mongoose.Schema.Types.ObjectId, required: false, ref: 'MicroController'}]
 })
 
